@@ -1,0 +1,46 @@
+name: ストア接続チェック
+
+# Secrets が正しく入っているか確かめる（ストアの状態を読むだけで、提出はしない）
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [".github/workflows/cws-check.yml"]
+
+env:
+  EXTENSION_ID: gfgojammcmfoeklgfkjcchhhfjildnae
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: アクセストークンを取ってストアの状態を読む
+        env:
+          CLIENT_ID: ${{ secrets.CWS_CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.CWS_CLIENT_SECRET }}
+          REFRESH_TOKEN: ${{ secrets.CWS_REFRESH_TOKEN }}
+          PUBLISHER_ID: ${{ secrets.CWS_PUBLISHER_ID }}
+        run: |
+          for v in CLIENT_ID CLIENT_SECRET REFRESH_TOKEN PUBLISHER_ID; do
+            if [ -z "${!v}" ]; then echo "::error::CWS_$v が未設定です"; missing=1; fi
+          done
+          [ -z "$missing" ] || exit 1
+          tok=$(curl -s https://oauth2.googleapis.com/token \
+            -d client_id="$CLIENT_ID" -d client_secret="$CLIENT_SECRET" \
+            -d refresh_token="$REFRESH_TOKEN" -d grant_type=refresh_token)
+          TOKEN=$(echo "$tok" | jq -r '.access_token // empty')
+          if [ -z "$TOKEN" ]; then
+            echo "::error::アクセストークンが取れません（クライアントID・シークレット・リフレッシュトークンを確認）: $(echo "$tok" | jq -c '{error,error_description}')"
+            exit 1
+          fi
+          echo "スコープ: $(echo "$tok" | jq -r .scope)"
+          res=$(curl -s -w '\n%{http_code}' -H "Authorization: Bearer $TOKEN" \
+            "https://chromewebstore.googleapis.com/v2/publishers/$PUBLISHER_ID/items/$EXTENSION_ID:fetchStatus")
+          code=$(echo "$res" | tail -1); body=$(echo "$res" | sed '$d')
+          echo "HTTP $code"
+          echo "$body" | jq '{itemId, published: .publishedItemRevisionStatus, submitted: .submittedItemRevisionStatus, takenDown, warned, error}'
+          if [ "$code" != "200" ]; then
+            echo "::error::ストアの状態が読めません（パブリッシャーIDか、許可したGoogleアカウントを確認）"
+            exit 1
+          fi
+          echo "::notice::接続OK"
