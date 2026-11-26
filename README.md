@@ -38,3 +38,7 @@ NK7 Tools と同じ値を使える。
 ## 手元で試すとき
 
 chrome://extensions →「デベロッパー モード」をオン →「パッケージ化されていない拡張機能を読み込む」で `extension/` フォルダを選ぶ。ストア版はOFFにしておく。
+
+## ライセンス
+
+[MIT License](LICENSE)
