@@ -39,6 +39,13 @@ NK7 Tools と同じ値を使える。
 
 chrome://extensions →「デベロッパー モード」をオン →「パッケージ化されていない拡張機能を読み込む」で `extension/` フォルダを選ぶ。ストア版はOFFにしておく。
 
+## プライバシーポリシー・利用規約
+
+- プライバシーポリシー：https://nk7.jp/policy/privacy/classroom-download/
+- 利用規約：https://nk7.jp/policy/app-terms/
+
+Chrome ウェブストアの「プライバシー」タブのポリシー URL も上と同じにする。
+
 ## ライセンス
 
 [MIT License](LICENSE)
