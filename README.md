@@ -44,8 +44,6 @@ chrome://extensions →「デベロッパー モード」をオン →「パッ�
 - プライバシーポリシー：https://nk7.jp/policy/privacy/classroom-download/
 - 利用規約：https://nk7.jp/policy/app-terms/
 
-Chrome ウェブストアの「プライバシー」タブのポリシー URL も上と同じにする。
-
 ## ライセンス
 
 [MIT License](LICENSE)
